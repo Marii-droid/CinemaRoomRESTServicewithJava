@@ -5,3 +5,4 @@ public class WrongTokenException extends RuntimeException {
         super(message);
     }
 }
+

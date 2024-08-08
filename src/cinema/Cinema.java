@@ -2,12 +2,12 @@ package cinema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
 
-
 public class Cinema {
 
    private final int rows;
    private final int columns;
    private final List<ReservedSeat> seats;
+   private Statistics statistics;
 
    private final Map<UUID, CinemaController.Ticket> tickets = new HashMap<>();
 
@@ -33,6 +33,7 @@ public class Cinema {
                seats.add(new ReservedSeat(false, row, column));
            }
        }
+
    }
 
    public ReservedSeat purchaseTicket(int row, int column) {
@@ -42,7 +43,6 @@ public class Cinema {
                return seat;
            }
        } return null;
-
    }
 
    public int getRows() {
@@ -63,5 +63,14 @@ public class Cinema {
            if (seat.getTicket()) reservedSeats.add(seat);
        }
        return reservedSeats;
+   }
+
+   public @JsonIgnore Statistics getStatistics() {
+       return statistics;
+   }
+
+   public void returnTicket(CinemaController.Ticket ticket) {
+       statistics.increaseIncome(-ticket.price());
+       statistics.increaseBoughtSeats(-1);
    }
 }

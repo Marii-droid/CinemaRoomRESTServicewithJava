@@ -1,17 +1,18 @@
 package cinema;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
 public class CinemaController {
     private final Cinema cinema;
 
-    //
     public CinemaController() {
         this.cinema = new Cinema(9, 9, new ArrayList<>());
     }
@@ -53,12 +54,30 @@ public class CinemaController {
                 seat.setTicket(false);
             }
         }
+//        cinema.returnTicket(ticket);
         return new ReturnTicketResponse(ticket);
+    }
+
+    @PostMapping("/stats")
+    public ResponseEntity<?> showStats(@RequestParam(required = false) String password){
+        if (Objects.equals(password, Password.getPassword())) {
+            Statistics statistics = cinema.getStatistics();
+            StatisticsResponse response = new StatisticsResponse(statistics.getIncome(), statistics.getAvailableSeats(), statistics.getBoughtSeats());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Wrong password!", HttpStatus.valueOf(401));
+        }
     }
 
     @ExceptionHandler({TakenSeatException.class, OutOfBoundsException.class, WrongTokenException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleTakenSeatAndOutOfBoundsAndToken(RuntimeException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler ({WrongPasswordException.class})
+    public ErrorResponse handleWrongPassword(WrongPasswordException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -68,4 +87,5 @@ public class CinemaController {
     public record ReturnTicketResponse(Ticket ticket) {}
     public record ReturnTokenResponse(Ticket ticket, UUID token) {}
     public record Ticket(int row, int column, int price){ }
+    public record StatisticsResponse (int income, int available, int purchased){}
 }
