@@ -22,7 +22,7 @@ public class CinemaController {
     }
 
     @PostMapping("/purchase")
-    public Seat purchaseSeats(@RequestBody PurchaseTicketRequest request) {
+    public ReturnTokenResponse purchaseSeats(@RequestBody PurchaseTicketRequest request) {
         List<ReservedSeat> seats = cinema.getReservedSeats();
         if (request.row() > cinema.getRows() || request.column() > cinema.getColumns() || request.row() < 0 || request.column() < 0) {
             throw new OutOfBoundsException("The number of a row or a column is out of bounds!");
@@ -32,8 +32,12 @@ public class CinemaController {
                 throw new TakenSeatException("The ticket has been already purchased!");
             }
         }
+        UUID token = UUID.randomUUID();
+        Seat boughtSeat = cinema.purchaseTicket(request.row, request.column);
+        Ticket ticket = new Ticket (boughtSeat.getRow(), boughtSeat.getColumn(), boughtSeat.getPrice());
+        cinema.storeTicket(ticket, token);
 
-        return cinema.purchaseTicket(request.row, request.column, cinema.getToken);  //nog ergens opslaan?
+        return new ReturnTokenResponse(ticket, token);
     }
 
     @PostMapping("/return")
@@ -41,6 +45,13 @@ public class CinemaController {
         Ticket ticket = cinema.getTicket(token);
         if (ticket == null) {
             throw new WrongTokenException("Wrong token!");
+        }
+        cinema.getTickets().remove(token.token());
+        List<ReservedSeat> returnedSeat = cinema.getReservedSeats();
+        for (ReservedSeat seat : returnedSeat) {
+            if (seat.getRow() == ticket.row() && seat.getColumn() == ticket.column()) {
+                seat.setTicket(false);
+            }
         }
         return new ReturnTicketResponse(ticket);
     }
@@ -51,9 +62,10 @@ public class CinemaController {
         return new ErrorResponse(e.getMessage());
     }
 
-    public record PurchaseTicketRequest(int row, int column) {    }
-    public record ErrorResponse(String error) {    }
-    public record ReturnTokenRequest(UUID token) {    }
-    public record ReturnTicketResponse(Ticket ticket) {    }
+    public record PurchaseTicketRequest(int row, int column) {}
+    public record ErrorResponse(String error) {}
+    public record ReturnTokenRequest(UUID token) {}
+    public record ReturnTicketResponse(Ticket ticket) {}
+    public record ReturnTokenResponse(Ticket ticket, UUID token) {}
     public record Ticket(int row, int column, int price){ }
 }

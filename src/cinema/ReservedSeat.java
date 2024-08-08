@@ -2,20 +2,10 @@ package cinema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
-import java.util.UUID;
 
 public class ReservedSeat extends Seat {
-    private UUID token = UUID.randomUUID();     //generate random UUID
     @JsonIgnore
     private boolean ticket;
-
-    public UUID getToken() {
-        return token;
-    }
-
-    public void setToken(UUID token) {
-        this.token = token;
-    }
 
     public ReservedSeat(boolean ticket, int row, int column) {
         super(row, column);

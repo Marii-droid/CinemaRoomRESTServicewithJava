@@ -5,18 +5,22 @@ import java.util.*;
 
 public class Cinema {
 
-   private int rows;
-   private int columns;
-   private List<ReservedSeat> seats;
+   private final int rows;
+   private final int columns;
+   private final List<ReservedSeat> seats;
 
    private final Map<UUID, CinemaController.Ticket> tickets = new HashMap<>();
+
+   public @JsonIgnore Map<UUID, CinemaController.Ticket> getTickets() {
+       return tickets;
+   }
 
    public void storeTicket(CinemaController.Ticket ticket, UUID token) {
        tickets.put(token, ticket);
    }
 
    public CinemaController.Ticket getTicket(CinemaController.ReturnTokenRequest token) {
-       return tickets.get(token);
+       return tickets.get(token.token());
    }
 
    public Cinema(int rows, int columns, List<ReservedSeat> seats) {
@@ -35,7 +39,6 @@ public class Cinema {
        for (ReservedSeat seat : seats) {
            if(seat.getColumn() == column && seat.getRow() == row) {
                seat.setTicket(true);
-               seat.getToken();  //
                return seat;
            }
        } return null;
