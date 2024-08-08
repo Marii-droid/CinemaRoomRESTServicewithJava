@@ -1,9 +1,6 @@
 package cinema;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class Cinema {
@@ -11,6 +8,16 @@ public class Cinema {
    private int rows;
    private int columns;
    private List<ReservedSeat> seats;
+
+   private final Map<UUID, CinemaController.Ticket> tickets = new HashMap<>();
+
+   public void storeTicket(CinemaController.Ticket ticket, UUID token) {
+       tickets.put(token, ticket);
+   }
+
+   public CinemaController.Ticket getTicket(CinemaController.ReturnTokenRequest token) {
+       return tickets.get(token);
+   }
 
    public Cinema(int rows, int columns, List<ReservedSeat> seats) {
        this.rows = rows;

@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -38,8 +37,8 @@ public class CinemaController {
     }
 
     @PostMapping("/return")
-    public Seat returnSeat(@RequestBody ReturnTokenRequest token) {
-        Seat ticket = cinema.getToken(token);
+    public ReturnTicketResponse returnSeat(@RequestBody ReturnTokenRequest token) {
+        Ticket ticket = cinema.getTicket(token);
         if (ticket == null) {
             throw new WrongTokenException("Wrong token!");
         }
@@ -53,10 +52,8 @@ public class CinemaController {
     }
 
     public record PurchaseTicketRequest(int row, int column) {    }
-
     public record ErrorResponse(String error) {    }
-
     public record ReturnTokenRequest(UUID token) {    }
-
-    public record ReturnTicketResponse(Seat ticket) {    }
+    public record ReturnTicketResponse(Ticket ticket) {    }
+    public record Ticket(int row, int column, int price){ }
 }
