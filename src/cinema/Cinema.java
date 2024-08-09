@@ -7,7 +7,7 @@ public class Cinema {
    private final int rows;
    private final int columns;
    private final List<ReservedSeat> seats;
-   private Statistics statistics;
+   private final Statistics statistics ;
 
    private final Map<UUID, CinemaController.Ticket> tickets = new HashMap<>();
 
@@ -33,13 +33,16 @@ public class Cinema {
                seats.add(new ReservedSeat(false, row, column));
            }
        }
-
+       this.statistics = new Statistics();
    }
 
    public ReservedSeat purchaseTicket(int row, int column) {
        for (ReservedSeat seat : seats) {
            if(seat.getColumn() == column && seat.getRow() == row) {
                seat.setTicket(true);
+               statistics.increaseIncome(seat.getPrice());
+               statistics.increaseBoughtSeats();
+               statistics.decreaseAvailableSeats();
                return seat;
            }
        } return null;
@@ -71,6 +74,7 @@ public class Cinema {
 
    public void returnTicket(CinemaController.Ticket ticket) {
        statistics.increaseIncome(-ticket.price());
-       statistics.increaseBoughtSeats(-1);
+       statistics.decreaseBoughtSeats();
+       statistics.increaseAvailableSeats();
    }
 }

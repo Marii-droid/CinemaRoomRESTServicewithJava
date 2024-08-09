@@ -4,10 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class CinemaController {
@@ -52,21 +49,23 @@ public class CinemaController {
         for (ReservedSeat seat : returnedSeat) {
             if (seat.getRow() == ticket.row() && seat.getColumn() == ticket.column()) {
                 seat.setTicket(false);
+                cinema.returnTicket(ticket);
             }
         }
-//        cinema.returnTicket(ticket);
+
         return new ReturnTicketResponse(ticket);
     }
 
-    @PostMapping("/stats")
-    public ResponseEntity<?> showStats(@RequestParam(required = false) String password){
-        if (Objects.equals(password, Password.getPassword())) {
-            Statistics statistics = cinema.getStatistics();
-            StatisticsResponse response = new StatisticsResponse(statistics.getIncome(), statistics.getAvailableSeats(), statistics.getBoughtSeats());
+    @GetMapping("/stats")
+    public ResponseEntity<?> showStats(@RequestParam Optional<String> password){
+        if (password.isPresent()) {
+            Statistics stats = cinema.getStatistics();
+
+            StatisticsResponse response = new StatisticsResponse(stats.getIncome(), stats.getAvailableSeats(), stats.getBoughtSeats());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Wrong password!", HttpStatus.valueOf(401));
+            return new ResponseEntity<>(new ErrorResponse ("The password is wrong!"), HttpStatus.UNAUTHORIZED);
         }
     }
 

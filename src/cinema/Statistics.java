@@ -5,30 +5,39 @@ public class Statistics {
     int availableSeats = 81;
     int boughtSeats = 0;
 
-    public Statistics(int income, int availableSeats, int boughtSeats) {
-        this.income = income;
-        this.availableSeats = availableSeats;
-        this.boughtSeats = boughtSeats;
+    public Statistics() {
     }
 
     public void increaseIncome(int amount) {
         this.income += amount;
     }
 
-    public void increaseBoughtSeats(int i){
+    public void increaseBoughtSeats() {
         this.boughtSeats++;
+    }
+
+    public void decreaseBoughtSeats() {
+        this.boughtSeats--;
+    }
+
+    public void increaseAvailableSeats() {
+        this.availableSeats++;
+    }
+
+    public void decreaseAvailableSeats() {
+        this.availableSeats--;
     }
 
     public int getIncome() {
         return income;
     }
 
-    public int getBoughtSeats(){
+    public int getBoughtSeats() {
         return boughtSeats;
     }
 
     public int getAvailableSeats() {
-        return availableSeats - boughtSeats;
+        return availableSeats;
     }
 
 }
